@@ -93,21 +93,28 @@ const BoardDetails = () => {
   const handleDragEnd = (event) => {
     const { active, over } = event;
     console.log('Drag End:', event);
-
+  
     if (over) {
-      const activeId = active.id.split('-')[1];
-      const overId = over.id.split('-')[1];
-
-      console.log(`Active ID: ${activeId}, Over ID: ${overId}`);
-
-      // Check if activeId and overId are correctly parsed
-      if (activeId && overId) {
+      // Extract cardId and originalListId from the active id
+      const activeIdParts = active.id.split('-');
+      const cardId = activeIdParts[1];
+      const originalListId = activeIdParts[3];
+  
+      // Extract newListId from the over id
+      const overIdParts = over.id.split('-');
+      const newListId = overIdParts[1];
+  
+      console.log(`Card ID: ${cardId}, Original List ID: ${originalListId}, New List ID: ${newListId}`);
+  
+      if (cardId && newListId) {
         // Dispatch action to update the card's listId
-        dispatch(editCardById(activeId, { list_id: overId }))
+        dispatch(editCardById(cardId, { list_id: newListId }))
           .then(() => {
-            console.log(`Card ${activeId} moved to list ${overId}`);
+            console.log(`Card ${cardId} moved from list ${originalListId} to list ${newListId}`);
             // Fetch the updated lists and cards
-            dispatch(getCardsByList(overId));
+            dispatch(getCardsByList(originalListId)).then(() => {
+                dispatch(getCardsByList(newListId));
+            });
           })
           .catch((error) => {
             console.error('Error updating card list:', error);
@@ -134,7 +141,7 @@ const BoardDetails = () => {
                     <div className={styles.cards}>
                       {cards[list.id]?.Cards?.length > 0 ? (
                         cards[list.id].Cards.map((card, index) => (
-                          <Draggable key={card.id} id={`card-${card.id}`}>
+                            <Draggable key={card.id} id={`card-${card.id}-list-${list.id}`}>
                             <div className={styles.card}>
                               <h3>{card.title}</h3>
                               <p>{card.description}</p>
