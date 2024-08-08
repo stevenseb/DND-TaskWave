@@ -1,0 +1,68 @@
+.centeredContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    box-sizing: border-box;
+  }
+  
+  h1 {
+    text-align: center;
+    color: silver;
+  }
+  
+  h2 {
+    text-align: center;
+    color: silver;
+  }
+  
+  h3, p {
+    color: black;
+  }
+  .board {
+    background-color: rgb(125, 125, 128);
+    border: solid 1px black;
+    border-radius: 12px;
+    padding: 10px;
+    width: 90vw;
+    height: 90vh;
+    box-sizing: border-box;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  .listContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    margin: 10px;
+  }
+  
+  .lists {
+    background-color: #282c34;
+    padding: 10px;
+    margin-bottom: 20px;
+    border-radius: 14px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    width: 300px;
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  
+  .cards {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .card {
+    background-color: rgb(200, 250, 100);
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    cursor: grab;
+  }
+  

@@ -8,6 +8,7 @@ const CREATE_TASK = 'cardTasks/CREATE';
 const GET_TASK_BY_ID = 'cardTasks/LOADONE';
 const EDIT_TASK = 'cardTasks/EDIT';
 const DELETE_TASK = 'cardTasks/DELETE';
+const GET_CARDS_BY_LIST = 'cards/LOAD_BY_LIST';
 
 //*ACTIONS
 
@@ -19,6 +20,12 @@ const getCards = (cards) => {
   };
 };
 
+// get all cards for a specific list id
+const getCardsByListAction = (listId, cards) => ({
+  type: GET_CARDS_BY_LIST,
+  listId,
+  cards,
+});
 
 // get a card by card id
 const getCardById = (card) => {
@@ -93,6 +100,12 @@ export const getAllCards = (listId) => async (dispatch) => {
   dispatch(getCards(allListCards));
 };
 
+export const getCardsByList = (listId) => async (dispatch) => {
+  const response = await fetch(`/api/lists/${listId}/cards`);
+  const cards = await response.json();
+  dispatch(getCardsByListAction(listId, cards));
+};
+
 export const getCard = (cardId) => async (dispatch) => {
   const response = await fetch(`/api/cards/${cardId}/`);
   const card = await response.json();
@@ -100,6 +113,12 @@ export const getCard = (cardId) => async (dispatch) => {
 };
 
 export const editCardById = (cardId, cardData) => async (dispatch) => {
+  // Convert list_id to string if it's a number
+  console.log(cardData);
+  if (cardData.list_id && typeof cardData.list_id === 'number') {
+    cardData.list_id = cardData.list_id.toString();
+  }
+
   const response = await fetch(`/api/cards/${cardId}`, {
     method: 'PUT',
     headers: {
@@ -111,8 +130,12 @@ export const editCardById = (cardId, cardData) => async (dispatch) => {
   if (response.ok) {
     const updatedCard = await response.json();
     dispatch(editCard(updatedCard));
+  } else {
+    const errorData = await response.json();
+    console.error('Error updating card:', errorData);
   }
 };
+
 
 export const deleteCardById = (cardId) => async (dispatch) => {
   const response = await fetch(`/api/cards/${cardId}`, {
@@ -178,7 +201,7 @@ export const deleteCardTaskById = (taskId) => async (dispatch) => {
 
 
 //*INITIAL STATE + REDUCER
-const initialState = { allCards: {}, currentCard: {}, allCardTasks: {}, currentCardTask: {} };
+const initialState = { allCards: {}, currentCard: {}, allCardTasks: {}, currentCardTask: {}, allCardsByList: {} };
 
 const cardsReducer = (state = initialState, action) => {
   switch (action.type) {
@@ -190,6 +213,16 @@ const cardsReducer = (state = initialState, action) => {
       return {
         ...state,
         allCards: { ...allCards },
+      };
+    }
+    case GET_CARDS_BY_LIST: {
+      const { listId, cards } = action;
+      return {
+        ...state,
+        allCardsByList: {
+          ...state.allCardsByList,
+          [listId]: cards,
+        },
       };
     }
     case GET_BY_ID: {

@@ -37,7 +37,7 @@ function Navigation({ isLoaded }) {
   return (
     <ul className="navigation">
       <li className="logo-container">
-        <NavLink exact to="/">
+        <NavLink to="/">
           <img src="/TaskWaveNarrow.png" alt="TaskWave" className="logo" />
         </NavLink>
       </li>

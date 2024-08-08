@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  getAllCards,
+  getCardsByList,
   getCard,
   editCardById,
   deleteCardById,
@@ -10,11 +11,16 @@ import {
   editCardTaskById,
   deleteCardTaskById,
 } from '../redux/card';
+import { getBoard } from '../redux/board';
+import { getListsByBoard } from '../redux/list';
 import './Splash.css';
 
 const CardsTest = () => {
   const dispatch = useDispatch();
-  const cards = useSelector((state) => state.cards.allCards);
+  const currentBoard = useSelector((state) => state.boards.currentBoard);
+  const { id } = useParams();
+  const cards = useSelector((state) => state.cards.allCardsByList);
+  const lists = useSelector((state) => state.lists.allLists);
   // const cardTasks = useSelector((state) => state.cardTasks?.allCardTasks || {});
   // const currentCard = useSelector((state) => state.cards.currentCard);
   // const [selectedCardId, setSelectedCardId] = useState(null);
@@ -25,8 +31,20 @@ const CardsTest = () => {
   const [isAddingTask, setIsAddingTask] = useState(false);
 
   useEffect(() => {
-    dispatch(getAllCards(1));
-  }, [dispatch]);
+    dispatch(getBoard(id));
+  }, [dispatch, id]);
+
+  useEffect(() => {
+    if (lists) {
+      Object.keys(lists).forEach((listId) => {
+        dispatch(getCardsByList(listId));
+      });
+    }
+  }, [dispatch, lists]);
+
+  useEffect(() => {
+    dispatch(getListsByBoard(id));
+  }, [dispatch, id]);
 
   const handleEditCard = (cardId) => {
     const updatedCardData = {
@@ -48,11 +66,11 @@ const CardsTest = () => {
     dispatch(createCardTask(cardId, taskData));
   };
 
-  const handleIsEditingTask = (taskId) => {
+  const handleIsEditingTask = () => {
     setIsEditingTask(!isEditingTask);
   };
 
-  const handleIsAddingTask = (taskId) => {
+  const handleIsAddingTask = () => {
     setIsAddingTask(!isAddingTask);
   };
 
@@ -78,40 +96,26 @@ const CardsTest = () => {
   };
 
   return (
-    <div className="splash-container">
-      {Object.keys(cards).length === 0 ? (
-        <h1>CREATE YOUR FIRST CARD!</h1>
-      ) : (
-        <div className="boards-container">
-          {Object.values(cards).map((card) => (
-            <div key={card.id} className="board-card">
-              <h2 className="board-name">{card.title}</h2>
-              <p className="board-description">{card.description}</p>
-              <button onClick={handleIsAddingTask}>Add Task</button>
-              {isAddingTask && (
-                <input
-                  type="text"
-                  placeholder="New Task Description"
-                  value={newTaskDescription}
-                  onChange={(e) => setNewTaskDescription(e.target.value)}
-                />
-              )}
-              <button onClick={() => handleLoadCardTasks(card.id)}>
-                Load Tasks
-              </button>
-              <button onClick={() => handleGetCardById(3)}>
-                Get Card By Id
-              </button>
-              <button onClick={() => handleEditCard(card.id)}>
-                Edit Card Details
-              </button>
-              <button onClick={() => handleDeleteCard(card.id)}>
-                Delete Card
-              </button>
-            </div>
-          ))}
+    <div className="boards-container">
+      {Object.values(cards).map((card) => (
+        <div key={card.id} className="board-card">
+          <h2 className="board-name">{card.title}</h2>
+          <p className="board-description">{card.description}</p>
+          <button onClick={handleIsAddingTask}>Add Task</button>
+          {isAddingTask && (
+            <input
+              type="text"
+              placeholder="New Task Description"
+              value={newTaskDescription}
+              onChange={(e) => setNewTaskDescription(e.target.value)}
+            />
+          )}
+          <button onClick={() => handleLoadCardTasks(card.id)}>Load Tasks</button>
+          <button onClick={() => handleGetCardById(3)}>Get Card By Id</button>
+          <button onClick={() => handleEditCard(card.id)}>Edit Card Details</button>
+          <button onClick={() => handleDeleteCard(card.id)}>Delete Card</button>
         </div>
-      )}
+      ))}
       <div>
         {/* ADD Submit button */}
         <button onClick={handleIsEditingTask}>Edit Task</button>
@@ -122,7 +126,7 @@ const CardsTest = () => {
                 type="text"
                 placeholder="Edit Task Description"
                 value={editTaskDescription}
-                onChange={(e) => setNewTaskDescription(e.target.value)}
+                onChange={(e) => setEditTaskDescription(e.target.value)}
               />
               <button onClick={() => handleEditSubmit(1)}>Submit Edit</button>
             </div>

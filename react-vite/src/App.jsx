@@ -9,6 +9,10 @@ import './global.css';
 import Splash from './pages/Splash';
 import BoardDetails from './pages/BoardDetails';
 import CardsTest from './pages/CardsTest';
+import {DndContext} from '@dnd-kit/core';
+import Draggable from './components/DND/Draggable';
+import Droppable from './components/DND/Droppable';
+
 
 const Layout = () => {
   //TODO: this is for navbar once created
@@ -22,11 +26,15 @@ const Layout = () => {
   //TODO: add navigation bar once component is built
   return (
     <>
-      <ModalProvider>
-        <Navigation isLoaded={isLoaded} />
-        {isLoaded && <Outlet />}
-        <Modal />
-      </ModalProvider>
+      <DndContext>
+        <ModalProvider>
+           <Navigation isLoaded={isLoaded} />
+            {isLoaded && <Outlet />}
+           <Modal />
+           <Draggable />
+           <Droppable />
+        </ModalProvider>
+      </DndContext>
     </>
   );
 };

@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
-from app.models import db, Card, CardTask, Comment, UserInBoard
+from app.models import db, Card, CardTask, Comment, UserInBoard, List
 from datetime import datetime, timezone
 
 card_routes = Blueprint('cards', __name__)
@@ -56,27 +56,44 @@ def edit_card(id):
     data = request.get_json()
     title = data.get('title')
     description = data.get('description')
+    list_id = data.get('list_id')
 
-    if not title or not description:
-        errors = {}
+    if list_id is not None:
+        try:
+            list_id = int(list_id)  # Ensure list_id is an integer
+        except ValueError:
+            return jsonify({"message": "Invalid List ID"}), 400
+
+        # Check if list_id exists
+        if not List.query.get(list_id):
+            return jsonify({"message": "List not found"}), 404
+
+        card.list_id = list_id
+
+    # Only update title and description if they are provided
+    if title is not None:
         if not title:
-            errors["title"] = "Title is required"
+            return jsonify({"message": "Title is required"}), 400
+        card.title = title
+
+    if description is not None:
         if not description:
-            errors["description"] = "Description is required"
-        return jsonify({"message": "Bad Request", "errors": errors}), 400
+            return jsonify({"message": "Description is required"}), 400
+        card.description = description
+
+    card.updated_at = datetime.now(timezone.utc)
 
     # Check for board membership of current user
-    user_in_board = UserInBoard.query.filter_by(board_id=id, user_id=current_user.id).first()
+    user_in_board = UserInBoard.query.filter_by(board_id=card.list_id, user_id=current_user.id).first()
     if not user_in_board:
-       return jsonify({"message": "Forbidden"}), 403
-
-    card.title = title
-    card.description = description
-    card.updated_at = datetime.now(timezone.utc)
+        return jsonify({"message": "Forbidden"}), 403
 
     db.session.commit()
 
     return jsonify(card.to_dict()), 200
+
+
+
 
 @card_routes.route('/<int:id>', methods=['DELETE'])
 @login_required

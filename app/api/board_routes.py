@@ -2,7 +2,6 @@ from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
 from app.models import db, Board, List, UserInBoard
 
-# TODO: May need to add control on create list so that it checks membership
 
 board_routes = Blueprint('boards', __name__)
 # Will get all boards that user is owner or member of
@@ -163,7 +162,7 @@ def get_lists_by_board(id):
     if not lists:
         return jsonify({"message": "No lists found for this board"})
     
-    return {'lists':[list.to_dict() for list in lists]}
+    return {'Lists':[list.to_dict() for list in lists]}
 
 # Will allow anyone to create a list on board where they are owner or member
 @board_routes.route('/<int:id>/lists', methods=['POST'])
@@ -190,8 +189,3 @@ def create_list(id):
     db.session.commit()
     
     return jsonify(new_list.to_dict()), 201
-    
-    db.session.add(user_in_board)
-    db.session.commit()
-
-    return jsonify(user_in_board.to_dict()), 200
