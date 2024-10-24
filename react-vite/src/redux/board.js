@@ -72,7 +72,7 @@ const boardsReducer = (state = initialState, action) => {
       };
     }
     case GET_BY_ID: {
-      return { ...state, currentBoard: action.board };
+      return { ...state, currentBoard: action.board.Board };
     }
     case CREATE: {
       return {

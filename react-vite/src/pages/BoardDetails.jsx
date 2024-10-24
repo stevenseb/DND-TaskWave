@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import {
@@ -32,14 +32,17 @@ const BoardDetails = () => {
   useEffect(() => {
     dispatch(getBoard(id));
     dispatch(getListsByBoard(id));
+    console.log('useEffect 1');
   }, [dispatch, id]);
 
   useEffect(() => {
     if (lists) {
       Object.keys(lists).forEach((listId) => {
         dispatch(getCardsByList(listId));
+        
       });
     }
+    console.log('useEffect 2');
   }, [dispatch, lists]);
 
   const handleEditCard = (cardId) => {
@@ -90,6 +93,7 @@ const BoardDetails = () => {
     dispatch(getCard(cardId));
   };
 
+  // Drag and Drop logic (currently updates UI but card appears to return to original list momentarily while the update is being processed)
   const handleDragEnd = (event) => {
     const { active, over } = event;
     console.log('Drag End:', event);
@@ -112,9 +116,10 @@ const BoardDetails = () => {
           .then(() => {
             console.log(`Card ${cardId} moved from list ${originalListId} to list ${newListId}`);
             // Fetch the updated lists and cards
-            dispatch(getCardsByList(originalListId)).then(() => {
-                dispatch(getCardsByList(newListId));
-            });
+            // THIS IS THE CODE THAT REFRESHES THE UI BUT NEEDS IMPROVEMENT
+            dispatch(getCardsByList(originalListId))
+            dispatch(getCardsByList(newListId))
+            
           })
           .catch((error) => {
             console.error('Error updating card list:', error);
@@ -131,7 +136,7 @@ const BoardDetails = () => {
     <DndContext onDragEnd={handleDragEnd}>
       <div className={styles.centeredContainer}>
         <div>
-          <h1>Welcome to {board.Board?.name || 'Loading...'}</h1>
+          <h1>Welcome to {board?.name || 'Loading...'}</h1>
           <div className={styles.board}>
             <div className={styles.listContainer}>
               {Object.values(lists).map((list) => (
@@ -149,7 +154,7 @@ const BoardDetails = () => {
                           </Draggable>
                         ))
                       ) : (
-                        <p>No cards available</p>
+                        <p className={styles.whiteText}>No cards available</p>
                       )}
                     </div>
                   </div>
